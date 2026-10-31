@@ -1,7 +1,7 @@
 <template>
 	<div class="container mt-1">
 		<div class="container mt-1"></div>
-		<div id="canvasCubic" class="row justify-content-center"></div>
+		<div id="canvasCuadratic" class="row justify-content-center"></div>
 	</div>
 </template>
 
@@ -22,7 +22,7 @@ export default {
 		};
 	},
 	methods: {
-		emitCoefficientsCuadratic: function() {
+		emitCoefficientsCuadratic: function () {
 			this.$root.$emit('emitCoefficientsCuadratic', this.mbs);
 		},
 	},
@@ -127,7 +127,7 @@ export default {
 				s.pop();
 			};
 		};
-		new P5(sketch, 'canvasCubic');
+		new P5(sketch, 'canvasCuadratic');
 	},
 	mounted() {
 		console.log(this.mbs);

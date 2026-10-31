@@ -33,7 +33,6 @@ export default {
 		return {
 			mbsLinear: [],
 			mbsCuadratic: [],
-			mbsCubic: [],
 			selected: '1',
 		};
 	},
@@ -50,9 +49,6 @@ export default {
 		});
 		this.$root.$on('emitCoefficientsCuadratic', (data) => {
 			this.mbsCuadratic = data;
-		});
-		this.$root.$on('emitCoefficientsCubic', (data) => {
-			this.mbsCubic = data;
 		});
 	},
 };

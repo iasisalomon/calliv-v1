@@ -1,0 +1,9 @@
+{
+  "name": "calliv-v1",
+  "compatibility_date": "2026-10-01",
+  // static site: serve the Vue build, and send unknown paths (/curvas, /datosprocesados) to index.html
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

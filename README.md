@@ -66,23 +66,58 @@ The format follows a plate-reader export:
 
 The net value is `signal − background`. Rows with the same well ID are treated as repeated readings and averaged. The plate is read in rows of 4 wells (`A1`–`A4`, `B1`–`B4`, …). The **standards go in column 2** (`A2`–`H2`), one per hardcoded x value, and the lowest value in column 1 is subtracted as the blank.
 
+## How it works, screen by screen
+
+The top bar links the three screens: **Upload CSV File**, **Process Data** and **Fit Regression**. Each screen saves its results to the browser's `localStorage`, and the next screen reads them from there. Opening a screen before its data exists shows a "No data yet" message with a link back to the upload page.
+
+### 1. Upload CSV File (`/`)
+
+Where the data comes in.
+
+- **Choose File** reads the CSV in the browser with PapaParse. Decimal commas are converted to dots.
+- **Subir** (upload) shows the raw file as a table: the header row becomes the table header, and every reading is one row.
+- **Procesar** (process) saves the file name, header and rows, then opens **Process Data**.
+
+Below the upload box, a link downloads the sample CSV.
+
+### 2. Process Data (`/datosprocesados`)
+
+All the processing happens when this screen opens. Four tabs show each step:
+
+| Tab | What it shows | How it's calculated |
+| --- | --- | --- |
+| **Sorted Data** | The readings, sorted by well | Rows sorted by well ID, so the repeated readings of a well are grouped together |
+| **Net Amounts** | One row per well: the net value of each reading, then their **Average** | `signal − background` for each reading (column 3 − column 4), averaged per well |
+| **Native Matrix** | The averages laid out like the plate | Rows `A`–`H`, columns `1`–`4` |
+| **Zero Adjusted Matrix** | The plate after the blank is removed | The lowest average in column 1 is the blank. It's subtracted from every well, and any result below 0 is shown as 0 |
+
+The blank-subtraction rule explains why some wells read 0. With the sample data, A1 is the blank (`−1827.1`), so A1 becomes 0. A2 reads even lower (`−2205.6`), so its result is negative and is clamped to 0. B1 and B2 read above the blank and stay positive.
+
+The zero-adjusted matrix is what the next screen fits.
+
+### 3. Fit Regression (`/curvas`)
+
+Fits a curve to the standards and plots it.
+
+- **The data points:** the standards are the zero-adjusted values in **column 2** (`A2`–`H2`). Each one is paired with a hardcoded x value: `0, 4.2, 9.7, 14.6, 22, 33.3, 50, 100`.
+- **The fit:** TensorFlow.js runs 1000 steps of gradient descent to minimize the mean squared error. Values are scaled first (x ÷ 100, y ÷ 100,000) to keep the steps stable.
+- **The selector** switches between fits:
+  - **1**: linear, `y = mx + b`
+  - **2**: quadratic, `y = ax² + bx + c`
+- **Above the graph:** the fitted equation and its **R²**, the share of the variation in the data the curve explains. 1 is a perfect fit.
+- **The graph:** the standards are red dots and the fitted curve is a blue line, both in the scaled units. A dot far from the line is a likely outlier.
+
+The fit starts from random coefficients, so the numbers change slightly every time the page loads.
+
 ## Try it with the sample data
 
-[`src/assets/raw_data.csv`](src/assets/raw_data.csv) is a real plate read: 32 wells (`A1`–`H4`), each read over 3 cycles.
+[`public/raw_data.csv`](public/raw_data.csv) is a real plate read: 32 wells (`A1`–`H4`), each read over 3 cycles.
 
 1. Start the app with `pnpm serve`. It opens at the **Upload CSV File** page.
-2. Click **Choose File** and select `src/assets/raw_data.csv`.
+2. Download the sample with the **Download the sample CSV** link under the upload box (or use `public/raw_data.csv`), click **Choose File** and select it.
 3. Click **Subir** (upload). The raw readings appear in a table under the file name.
-4. Click **Procesar** (process). The **Process Data** page opens, with four tabs:
-   - **Sorted Data**: the readings sorted by well.
-   - **Net Amounts**: signal − background for each cycle, plus their average.
-   - **Native Matrix**: the averages laid out as the plate.
-   - **Zero Adjusted Matrix**: the same matrix after the blank is subtracted.
-5. Click **Fit Regression** in the top bar. Use the selector to switch between fits:
-   - **1**: linear (`y = mx + b`)
-   - **2**: quadratic (`y = ax² + bx + c`)
-
-   Each graph shows the standards as red dots and the fitted curve in blue, with the equation and R² above it.
+4. Click **Procesar** (process). The **Process Data** page opens. Go through its four tabs.
+5. Click **Fit Regression** in the top bar. Use the selector to switch between the linear (**1**) and quadratic (**2**) fits.
 
 What to check:
 

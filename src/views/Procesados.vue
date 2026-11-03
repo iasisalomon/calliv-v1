@@ -1,6 +1,8 @@
 <template>
   <div class="container">
     <Navbar />
+    <NoData v-if="!hasData" />
+    <template v-else>
     <Nav
       :showactive="showactive"
       @datosUpdate="datosUpdate($event)"
@@ -35,6 +37,7 @@
       :WellsUniqueRows="WellsUniqueRows"
       :curveBy4="curveBy4"
     />
+    </template>
   </div>
 </template>
 
@@ -46,6 +49,7 @@ import ProcessedTable from "../components/ProcessedTable";
 import TableByWell from "../components/TableByWell";
 import Matriz from "../components/Matriz";
 import MatrizCero from "../components/MatrizCero";
+import NoData from "../components/NoData";
 
 var groupBy = function(xs, key) {
   return xs.reduce(function(rv, x) {
@@ -58,6 +62,7 @@ export default {
   data() {
     return {
       /*** DATOS ORDENADOS Y FLUORESCENCIA NETA ***/
+      hasData: true,
       loadedtoken: 0,
       showactive: [true, false, false],
       csvdata: [],
@@ -89,12 +94,22 @@ export default {
     TableByWell,
     Nav,
     Matriz,
-    MatrizCero
+    MatrizCero,
+    NoData
   },
   methods: {},
   created() {
+    // nothing to process until a CSV with rows has been uploaded
+    const storedRows = JSON.parse(localStorage.getItem("csvdata"));
+    const routeRows =
+      this.$route.params.data != undefined ? this.$route.params.data[2] : null;
+    if (!(routeRows && routeRows.length) && !(storedRows && storedRows.length)) {
+      this.hasData = false;
+      return;
+    }
+
     /*** DATOS ORDENADOS Y FLUORESCENCIA NETA ***/
-    if (this.$route.params.data != undefined) {
+    if (routeRows && routeRows.length) {
       //file handshake
       this.filename = this.$route.params.data[0];
       this.tableConfig = this.$route.params.data[1];
@@ -165,6 +180,9 @@ export default {
     this.curveBy4 = _.chunk(this.curve, [4]);
   },
   beforeMount() {
+    if (!this.hasData) {
+      return;
+    }
     if (this.adjustedAverageBy4 != undefined) {
       localStorage.setItem(
         "adjustedAverageBy4",

@@ -7,6 +7,11 @@
       @CSV="updateCSV($event)"
       @SD="linkData($event)"
     />
+    <p class="text-muted small mt-2">
+      No data at hand?
+      <a href="/raw_data.csv" download>Download the sample CSV</a>, then upload
+      it above.
+    </p>
     <h1>{{ filename }}</h1>
     <Table :csvdata="csvdata" :filename="filename" :tableConfig="tableConfig" />
   </div>
@@ -58,13 +63,14 @@ export default {
     }
   },
   mounted() {
-    if (localStorage.getItem("filename") != "") {
+    // getItem returns null on a first visit, before any CSV was uploaded
+    if (localStorage.getItem("filename") != null) {
       this.filename = JSON.parse(localStorage.getItem("filename"));
     }
-    if (localStorage.getItem("csvdata") != "") {
+    if (localStorage.getItem("csvdata") != null) {
       this.csvdata = JSON.parse(localStorage.getItem("csvdata")).sort();
     }
-    if (localStorage.getItem("tableConfig") != "") {
+    if (localStorage.getItem("tableConfig") != null) {
       this.tableConfig = JSON.parse(localStorage.getItem("tableConfig"));
     }
   }

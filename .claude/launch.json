@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "calliv-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["exec", "vue-cli-service", "serve", "--port", "8080"],
+      "port": 8080
+    }
+  ]
+}

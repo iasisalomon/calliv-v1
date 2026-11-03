@@ -2,4 +2,3 @@ allowBuilds:
   bootstrap-vue: true
   core-js: true
   ejs: true
-  node-sass: true
